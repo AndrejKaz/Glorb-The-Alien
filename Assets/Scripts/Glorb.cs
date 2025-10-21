@@ -155,13 +155,7 @@ public class Glorb : MonoBehaviour
         //Jump platform
         if (other.gameObject.CompareTag("Jump platform"))
         {
-            glorbBody.AddForce(Vector2.up * 15, ForceMode2D.Impulse);
-        }
-
-        //Push platform
-        if(other.gameObject.CompareTag("Push platform"))
-        {
-            glorbBody.AddForce(Vector2.right * 30, ForceMode2D.Impulse);
+            glorbBody.AddForce(Vector2.up * 20, ForceMode2D.Impulse);
         }
 
         //Out of world

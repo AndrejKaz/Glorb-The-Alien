@@ -19,6 +19,9 @@ TagManager:
   - WallB
   - Door
   - Ball
+  - Arm
+  - Head
+  - Bullet
   layers:
   - Default
   - TransparentFX
