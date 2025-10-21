@@ -22,6 +22,7 @@ TagManager:
   - Arm
   - Head
   - Bullet
+  - Block
   layers:
   - Default
   - TransparentFX
