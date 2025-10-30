@@ -1,22 +1,41 @@
 using System.Collections;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Boss : MonoBehaviour
 {
-    //Movement of the boss
+    //====================//
+    //Movement of the boss//
+    //====================//
     public Rigidbody2D rg;
     [SerializeField] float speed = 5f;
+    [SerializeField] float floatSpeed = 5f;
     private int direction = 1;
 
-    //Spike creation of the boss
+    //==============//
+    //Float movement//
+    //==============//
+    private bool canFloat = false;
+    private bool canFall = false;
+    private bool floatStart = false;
+    private float floatTime = 1f;
+    private float fallTime = 1f;
+
+    //==========================//
+    //Spike creation of the boss//
+    //==========================//
     private float bulletCreation = 0.5f;
     private float bulletCooldown = 0.8f;
     private bool canCreate = false;
     private bool canStart = true;
 
-    //Game objects
+    //============//
+    //Game objects//
+    //============//
     GameObject arm;
     GameObject bulletSpike;
 
@@ -31,6 +50,7 @@ public class Boss : MonoBehaviour
     void Update()
     {
         rg.linearVelocity = new Vector2(direction * speed, rg.linearVelocityY);
+
     }
 
     void FixedUpdate()
@@ -41,12 +61,39 @@ public class Boss : MonoBehaviour
             canCreate = true;
             StartCoroutine(spikeCreation());
         }
-        moveUp();
+
+        //Check if the boss can float
+        if (rg.transform.position.x >= 10f && !floatStart)
+        {
+            floatStart = true;
+            StartCoroutine(floatCycle());
+        }
+
+    }
+
+    //Float cycle
+    private IEnumerator floatCycle()
+    {
+        while(true)
+        {
+            //Float phase
+            canFloat = true;
+            rg.linearVelocity = new Vector2(rg.linearVelocityX, floatSpeed);
+            yield return new WaitForSeconds(floatTime);
+            canFloat = false;
+
+            //Fall phase
+            canFall = true;
+            rg.linearVelocity = new Vector2(rg.linearVelocityX, -floatSpeed);
+            yield return new WaitForSeconds(fallTime);
+            canFall = false;
+        }
     }
 
     //Spike creation
     private IEnumerator spikeCreation()
     {
+        //Check if the boss can create
         if (canCreate)
         {
             Vector2 startPos = arm.transform.position;
@@ -63,45 +110,11 @@ public class Boss : MonoBehaviour
             yield return new WaitForSeconds(bulletCooldown);
             canStart = true;
         }
-
-        if(rg.transform.position.x >= 10f)
+        //Disable the start and create components
+        if (rg.transform.position.x >= 10f)
         {
             canStart = false;
             canCreate = false;
         }
     }
-
-
-
-    private void moveUp()
-    {
-        if (rg.transform.position.x >= 10f)
-        {
-            rg.linearVelocity = new Vector2(direction * speed, 5f);
-            print("GO UP");
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Block"))
-        {
-            direction *= -1;
-
-        }
-
-        if (collision.gameObject.CompareTag("PointA"))
-        {
-            direction *= -1;
-        }
-
-        if (collision.gameObject.CompareTag("PointB"))
-        {
-            direction *= -1;
-            print("BOOM");
-        }
-
-    
-    }
-
 }
