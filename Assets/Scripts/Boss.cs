@@ -28,21 +28,29 @@ public class Boss : MonoBehaviour
     //==========================//
     //Spike creation of the boss//
     //==========================//
-    private float bulletCreation = 0.5f;
-    private float bulletCooldown = 0.8f;
+    private float spikeCreation = 0.5f;
+    private float spikeCooldown = 0.8f;
     private bool canCreate = false;
     private bool canStart = true;
+
+    //Bullet Creation of the boss
+    private float bulletSpeed = 3f;
+    private float bulletTime = 2f;
+    private bool canShoot = false;
+
 
     //============//
     //Game objects//
     //============//
     GameObject arm;
-    GameObject bulletSpike;
+    GameObject spike;
+    GameObject bullet;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        bulletSpike = GameObject.FindWithTag("Bullet");
+        bullet = GameObject.FindWithTag("Bullet");
+        spike = GameObject.FindWithTag("Bullet");
         arm = GameObject.FindWithTag("Arm");
     }
 
@@ -59,7 +67,7 @@ public class Boss : MonoBehaviour
         if (canStart)
         {
             canCreate = true;
-            StartCoroutine(spikeCreation());
+            StartCoroutine(spawnSpike());
         }
 
         //Check if the boss can float
@@ -68,7 +76,12 @@ public class Boss : MonoBehaviour
             floatStart = true;
             StartCoroutine(floatCycle());
         }
-
+    
+        if(floatStart && !canShoot)
+        {
+            StartCoroutine(spawnBullet());
+     
+        }
     }
 
     //Float cycle
@@ -91,7 +104,7 @@ public class Boss : MonoBehaviour
     }
 
     //Spike creation
-    private IEnumerator spikeCreation()
+    private IEnumerator spawnSpike()
     {
         //Check if the boss can create
         if (canCreate)
@@ -101,13 +114,13 @@ public class Boss : MonoBehaviour
             if (arm != null)
             {
                 Vector2 newPos = new Vector2(startPos.x - 2, 0.5f);
-                Instantiate(bulletSpike, newPos, Quaternion.identity);
+                Instantiate(spike, newPos, Quaternion.identity);
             }
 
-            yield return new WaitForSeconds(bulletCreation);
+            yield return new WaitForSeconds(spikeCreation);
             canCreate = false;
             canStart = false;
-            yield return new WaitForSeconds(bulletCooldown);
+            yield return new WaitForSeconds(spikeCooldown);
             canStart = true;
         }
         //Disable the start and create components
@@ -115,6 +128,24 @@ public class Boss : MonoBehaviour
         {
             canStart = false;
             canCreate = false;
+        }
+    }
+
+    private IEnumerator spawnBullet()
+    {
+        while (true)
+        {
+            Vector2 bulletPos = arm.transform.position;
+
+            if (arm != null)
+            {
+                Vector2 newPos = new Vector2(bulletPos.x - 20, 0);
+                Instantiate(bullet, newPos, Quaternion.identity);
+            }
+
+            canShoot = true;
+            yield return new WaitForSeconds(bulletTime);
+
         }
     }
 }
